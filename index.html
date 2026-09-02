@@ -360,6 +360,41 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (window.Babel && typeof window.Babel.transformScriptTags === 'function') {
       window.Babel.transformScriptTags();
     }
+
+    // Mobile viewport shim + botão de tela cheia
+    try {
+      if (window.matchMedia('(max-width: 900px)').matches) {
+        var vp = document.querySelector('meta[name="viewport"]');
+        if (!vp) { vp = document.createElement('meta'); vp.setAttribute('name', 'viewport'); document.head.appendChild(vp); }
+        vp.setAttribute('content', 'width=1920, user-scalable=yes');
+      }
+      var ENTER_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+      var EXIT_ICON  = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'Tela cheia');
+      btn.innerHTML = ENTER_ICON;
+      btn.style.cssText = 'position:fixed;top:14px;right:14px;z-index:2147483647;width:42px;height:42px;border-radius:10px;border:0;background:rgba(8,13,31,.82);color:#F7F9FC;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:0;transition:background .15s;-webkit-tap-highlight-color:transparent;';
+      btn.onmouseover = function() { btn.style.background = 'rgba(8,13,31,1)'; };
+      btn.onmouseout  = function() { btn.style.background = 'rgba(8,13,31,.82)'; };
+      btn.onclick = function() {
+        var fs = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fs) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else {
+          var el = document.documentElement;
+          var req = el.requestFullscreen || el.webkitRequestFullscreen;
+          if (req) req.call(el);
+        }
+      };
+      var updateIcon = function() {
+        var fs = document.fullscreenElement || document.webkitFullscreenElement;
+        btn.innerHTML = fs ? EXIT_ICON : ENTER_ICON;
+      };
+      document.addEventListener('fullscreenchange', updateIcon);
+      document.addEventListener('webkitfullscreenchange', updateIcon);
+      document.body.appendChild(btn);
+    } catch (e) { console.warn('[palestra] mobile/fullscreen shim failed:', e); }
   } catch (err) {
     setStatus('Error unpacking: ' + err.message);
     console.error('Bundle unpack error:', err);
