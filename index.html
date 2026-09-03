@@ -388,6 +388,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       var updateIcon = function() {
         var fs = document.fullscreenElement || document.webkitFullscreenElement;
         btn.innerHTML = fs ? EXIT_ICON : ENTER_ICON;
+        var isMobile = window.matchMedia('(max-width: 900px)').matches;
+        document.querySelectorAll('deck-stage').forEach(function(d) {
+          if (fs || isMobile) { d.setAttribute('no-rail', ''); }
+          else { d.removeAttribute('no-rail'); }
+        });
       };
       document.addEventListener('fullscreenchange', updateIcon);
       document.addEventListener('webkitfullscreenchange', updateIcon);
